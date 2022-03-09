@@ -160,7 +160,7 @@ func (lb *loadBalancerImp) removeExtraExporters(ctx context.Context, endpoints [
 
 func endpointFound(endpoint string, endpoints []string) bool {
 	for _, candidate := range endpoints {
-		if candidate == endpoint {
+		if endpointWithPort(candidate) == endpoint {
 			return true
 		}
 	}
@@ -185,7 +185,7 @@ func (lb *loadBalancerImp) Exporter(endpoint string) (component.Exporter, error)
 	// data loss because the latest batches sent to outdated backend will never find their way out.
 	// for details: https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/1690
 	lb.updateLock.RLock()
-	exp, found := lb.exporters[endpoint]
+	exp, found := lb.exporters[endpointWithPort(endpoint)]
 	lb.updateLock.RUnlock()
 	if !found {
 		// something is really wrong... how come we couldn't find the exporter??
